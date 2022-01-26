@@ -8,29 +8,29 @@ import java.awt.event.*;
 import java.io.*;
 
 /**
- * @description 这是主运行窗口
+ * @description è¿™æ˜¯ä¸»è¿�è¡Œçª—å�£
  */
 @SuppressWarnings("all")
 public class MainComplier extends JFrame {
 
-    //UI组件,运行窗口一些按钮
-    JButton jButton1 = new JButton("词法分析");
-    JButton jButton2 = new JButton("清空");
-    JButton jButton3 = new JButton("文法1");
-    JButton jButton4 = new JButton("文法2");
-    JButton jButton5 = new JButton("文法3");
-    JButton jButton6 = new JButton("文法4");
-    JLabel inLabel = new JLabel("待分析文件");
-    JLabel outLabel = new JLabel("分析结果");
-    ReadText readText = new ReadText(7, 65);//输入区
-    OutText outText = new OutText(30, 65);//输出区
+    //UI components, run windows with some buttons
+    JButton jButton1 = new JButton("lexical analysis");
+    JButton jButton2 = new JButton("empty");
+    JButton jButton3 = new JButton("Grammar 1");
+    JButton jButton4 = new JButton("Grammar 2");
+    JButton jButton5 = new JButton("Grammar 3");
+    JButton jButton6 = new JButton("Grammar 4");
+    JLabel inLabel = new JLabel("File to Analyze");
+    JLabel outLabel = new JLabel("Analysis Results");
+    ReadText readText = new ReadText(7, 63);//input area
+    OutText outText = new OutText(30, 65);//output area
 
-    //供子类继承使用
+    //ä¾›å­�ç±»ç»§æ‰¿ä½¿ç”¨
     public MainComplier(ReadText readText, OutText outText) throws HeadlessException {
         this.readText = readText;
         this.outText = outText;
     }
-    //事件监听器
+    //äº‹ä»¶ç›‘å�¬å™¨
     public void initListener() {
         ActListener actListener = new ActListener();
         jButton1.addActionListener(actListener);
@@ -40,7 +40,7 @@ public class MainComplier extends JFrame {
         jButton5.addActionListener(actListener);
         jButton6.addActionListener(actListener);
     }
-    //构建事件监听器
+    //æž„å»ºäº‹ä»¶ç›‘å�¬å™¨
     class ActListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -63,24 +63,25 @@ public class MainComplier extends JFrame {
             }
         }
     }
-    //主窗口
+    //ä¸»çª—å�£
     public MainComplier() throws IOException {
-        super("词法分析器");
-        setSize(550, 730);
-        this.setLocation(320, 70);
+        super("lexical analyzer");
+        setSize(650, 720);
+        this.setResizable(false);
+        this.setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLayout(new FlowLayout(FlowLayout.CENTER));//中间对齐
+        this.setLayout(new FlowLayout(FlowLayout.CENTER));//ä¸­é—´å¯¹é½�
         this.add(this.inLabel);
         this.add(this.readText);
         this.add(this.outLabel);
         this.add(this.outText);
         this.add(this.jButton1);
-        this.add(this.jButton2);
         this.add(this.jButton3);
         this.add(this.jButton4);
         this.add(this.jButton5);
         this.add(this.jButton6);
+        this.add(this.jButton2);
         initListener();
-        this.setVisible(true);//设置窗口可输入文本
+        this.setVisible(true);//è®¾ç½®çª—å�£å�¯è¾“å…¥æ–‡æœ¬
     }
 }
