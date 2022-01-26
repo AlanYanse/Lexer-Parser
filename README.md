@@ -1,4 +1,4 @@
-# :gift:Lexer-Parser
+# :eyes:Lexer-Parser
 用java实现的词法分析和语法分析的小程序:flags:
 
 ## 概述
