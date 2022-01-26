@@ -1,5 +1,5 @@
 # :eyes:Lexer-Parser
-用java实现的词法分析和语法分析的小程序:flags:
+Small program for lexical analysis and syntax analysis implemented in java:coffee:
 
 ## 概述
 - **词法分析：** 根据输入的字符序列，将字符序列转换为单词`Token`序列，识别每个字符，并给出相应的类型
