@@ -11,37 +11,37 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * @description 这是词法分析的具体实现
+ * @description This is the concrete implementation of lexical analysis
  */
 @SuppressWarnings("all")
 public class Lexer extends MainComplier{
 
-    //词法分析解释规则,定义字符数组
-    String[] keyWords = {"if", "else", "while", "read", "write", "int", "double","for"};  //关键字数组
-    String[] operator = {"+", "-", "*", "/"};//运算符数组
-    String[] roperator = {">", "<", "==", "<>"};//关系运算符数组
-    String[] sepretor = {";", "{", "}", "(", ")", "."};//分隔符数组
-    String RegexToId = "^[a-zA-Z]([a-zA-Z_0-9])*[a-zA-Z0-9]$||[a-zA-Z]";//标识符的正则表达式
-    String RegexToNumber = "^^-?\\d+$";//整数的正则表达式
-    String RegexToFloat = "^(-?\\d+)(\\.\\d+)?$";//浮点数的正则表达式
-    String RegexToArray = "[a-zA-Z]+(\\[[0-9][1-9]*\\])+";//数组变量的正则表达式
+    //Lexical analysis interpretation rules, defining character arrays
+    String[] keyWords = {"if", "else", "while", "read", "write", "int", "double","for"};  //array of keywords
+    String[] operator = {"+", "-", "*", "/"};//operator array
+    String[] roperator = {">", "<", "==", "<>"};//å…³ç³»è¿�ç®—ç¬¦æ•°ç»„
+    String[] sepretor = {";", "{", "}", "(", ")", "."};//åˆ†éš”ç¬¦æ•°ç»„
+    String RegexToId = "^[a-zA-Z]([a-zA-Z_0-9])*[a-zA-Z0-9]$||[a-zA-Z]";//æ ‡è¯†ç¬¦çš„æ­£åˆ™è¡¨è¾¾å¼�
+    String RegexToNumber = "^^-?\\d+$";//æ•´æ•°çš„æ­£åˆ™è¡¨è¾¾å¼�
+    String RegexToFloat = "^(-?\\d+)(\\.\\d+)?$";//æµ®ç‚¹æ•°çš„æ­£åˆ™è¡¨è¾¾å¼�
+    String RegexToArray = "[a-zA-Z]+(\\[[0-9][1-9]*\\])+";//æ•°ç»„å�˜é‡�çš„æ­£åˆ™è¡¨è¾¾å¼�
 
-    //将父类的readText, outText继承过来
+    //å°†çˆ¶ç±»çš„readText, outTextç»§æ‰¿è¿‡æ�¥
     public Lexer(ReadText readText, OutText outText) throws HeadlessException {
         super(readText, outText);
     }
 
-    //分析过程，此处为语法分析和词法分析提供已经修饰过的源程序
+    //åˆ†æž�è¿‡ç¨‹ï¼Œæ­¤å¤„ä¸ºè¯­æ³•åˆ†æž�å’Œè¯�æ³•åˆ†æž�æ��ä¾›å·²ç»�ä¿®é¥°è¿‡çš„æº�ç¨‹åº�
     public List<TokenList> getTokens() {
-        List<TokenList> tokenLists = new ArrayList<>();//用于记录Token的信息
+        List<TokenList> tokenLists = new ArrayList<>();//ç”¨äºŽè®°å½•Tokençš„ä¿¡æ�¯
         String inputText = readText.getText();
         StringTokenizer totalStrt = new StringTokenizer(inputText, "\r\n");
-        int row = 0;//行号
-        //获取所有的记号以及记号的信息
+        int row = 0;//è¡Œå�·
+        //èŽ·å�–æ‰€æœ‰çš„è®°å�·ä»¥å�Šè®°å�·çš„ä¿¡æ�¯
         while (totalStrt.hasMoreTokens()) {
-            List<String> Tokens = new ArrayList<>();//行记号
+            List<String> Tokens = new ArrayList<>();//è¡Œè®°å�·
             StringTokenizer rowOfStrt = new StringTokenizer(totalStrt.nextToken(), " \n\r\t;(){}\"\'+-<>/=*", true);
-            //所有可能的界符，初步得到所有的Token,但需要进一步的合并
+            //æ‰€æœ‰å�¯èƒ½çš„ç•Œç¬¦ï¼Œåˆ�æ­¥å¾—åˆ°æ‰€æœ‰çš„Token,ä½†éœ€è¦�è¿›ä¸€æ­¥çš„å�ˆå¹¶
             while (rowOfStrt.hasMoreTokens()) {
                 Tokens.add(rowOfStrt.nextToken());
             }
@@ -49,20 +49,20 @@ public class Lexer extends MainComplier{
             tokenLists.add(tokenList);
             row++;
         }
-        //对于初步得到的记号集合的进一步判断与整合,用于区别注释和*,/；以及=与==,以及<与<>
+        //å¯¹äºŽåˆ�æ­¥å¾—åˆ°çš„è®°å�·é›†å�ˆçš„è¿›ä¸€æ­¥åˆ¤æ–­ä¸Žæ•´å�ˆ,ç”¨äºŽåŒºåˆ«æ³¨é‡Šå’Œ*,/ï¼›ä»¥å�Š=ä¸Ž==,ä»¥å�Š<ä¸Ž<>
         for (int i = 0; i < tokenLists.size(); i++) {
-            List<String> tokenList = tokenLists.get(i).getTokenList();//获取行记号组
+            List<String> tokenList = tokenLists.get(i).getTokenList();//èŽ·å�–è¡Œè®°å�·ç»„
             for (int j = 0; j < tokenList.size() - 1; j++) {
                 if (tokenList.get(j).equals("/") && tokenList.get(j + 1).equals("/")) {
-                    //单行注释记号的识别
+                    //å�•è¡Œæ³¨é‡Šè®°å�·çš„è¯†åˆ«
                     tokenList.set(j, "//");
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("/") && tokenList.get(j + 1).equals("*")) {
-                    //多行注释的识别
+                    //å¤šè¡Œæ³¨é‡Šçš„è¯†åˆ«
                     tokenList.set(j, "/*");
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("*") && tokenList.get(j + 1).equals("/")) {
-                    //多行注释的识别
+                    //å¤šè¡Œæ³¨é‡Šçš„è¯†åˆ«
                     tokenList.set(j, "*/");
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("=") && tokenList.get(j + 1).equals("=")) {
@@ -70,13 +70,13 @@ public class Lexer extends MainComplier{
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("<") && tokenList.get(j + 1).equals(">")) {
                     tokenList.set(j, "<>");
-                    tokenList.remove(j + 1);//判断不等于符号
+                    tokenList.remove(j + 1);//åˆ¤æ–­ä¸�ç­‰äºŽç¬¦å�·
                 }
             }
         }
-        //第二次对记号进行判断整合，主要用于去除各种分隔符
+        //ç¬¬äºŒæ¬¡å¯¹è®°å�·è¿›è¡Œåˆ¤æ–­æ•´å�ˆï¼Œä¸»è¦�ç”¨äºŽåŽ»é™¤å�„ç§�åˆ†éš”ç¬¦
         for (int i = 0; i < tokenLists.size(); i++) {
-            List<String> tokenList = tokenLists.get(i).getTokenList();//获取行记号组
+            List<String> tokenList = tokenLists.get(i).getTokenList();//èŽ·å�–è¡Œè®°å�·ç»„
             String Pattern = "\\s+|\t|\r\n";
             int j = 0;
             while(j<tokenList.size())
@@ -91,20 +91,20 @@ public class Lexer extends MainComplier{
                 }
             }
         }
-        //第三次对记号进行去除注释，得到真正的完整的记号
-        List<MultiComment> multiComments = new ArrayList<>();//存放多行注释的位置信息
-        List<SingleComment> singleComments = new ArrayList<>();//存放单行注释的位置信息
-        for (int i = 0; i < tokenLists.size(); i++)//多行注释的记号获取
+        //ç¬¬ä¸‰æ¬¡å¯¹è®°å�·è¿›è¡ŒåŽ»é™¤æ³¨é‡Šï¼Œå¾—åˆ°çœŸæ­£çš„å®Œæ•´çš„è®°å�·
+        List<MultiComment> multiComments = new ArrayList<>();//å­˜æ”¾å¤šè¡Œæ³¨é‡Šçš„ä½�ç½®ä¿¡æ�¯
+        List<SingleComment> singleComments = new ArrayList<>();//å­˜æ”¾å�•è¡Œæ³¨é‡Šçš„ä½�ç½®ä¿¡æ�¯
+        for (int i = 0; i < tokenLists.size(); i++)//å¤šè¡Œæ³¨é‡Šçš„è®°å�·èŽ·å�–
         {
             List<String> TokenOfrow = tokenLists.get(i).getTokenList();
-            int rowCount = tokenLists.get(i).getRow();//多行注释行号
+            int rowCount = tokenLists.get(i).getRow();//å¤šè¡Œæ³¨é‡Šè¡Œå�·
             for (int j = 0; j < TokenOfrow.size(); j++) {
                 if (TokenOfrow.get(j).equals("//")) {
                     SingleComment singleComment = new SingleComment(rowCount, j);
-                    singleComments.add(singleComment);//记录单行注释位置
+                    singleComments.add(singleComment);//è®°å½•å�•è¡Œæ³¨é‡Šä½�ç½®
                 }
                 if (TokenOfrow.get(j).equals("/*")) {
-                    MultiComment multiComment = new MultiComment(rowCount, j, "/*");//j为列号
+                    MultiComment multiComment = new MultiComment(rowCount, j, "/*");//jä¸ºåˆ—å�·
                     multiComments.add(multiComment);
                 } else if (TokenOfrow.get(j).equals("*/")) {
                     MultiComment multiComment = new MultiComment(rowCount, j, "*/");
@@ -112,86 +112,86 @@ public class Lexer extends MainComplier{
                 }
             }
         }
-        for (int i = 0; i < multiComments.size(); i = i + 2)//去除多行注释中的整行注释
+        for (int i = 0; i < multiComments.size(); i = i + 2)//åŽ»é™¤å¤šè¡Œæ³¨é‡Šä¸­çš„æ•´è¡Œæ³¨é‡Š
         {
-            if ((multiComments.size() % 2) == 0 && i <= multiComments.size() - 2)//判断注释是否未闭合
+            if ((multiComments.size() % 2) == 0 && i <= multiComments.size() - 2)//åˆ¤æ–­æ³¨é‡Šæ˜¯å�¦æœªé—­å�ˆ
             {
                 if (multiComments.get(i).getComment().equals("/*") && multiComments.get(i + 1).getComment().equals("*/")) {
                     for (int j = multiComments.get(i).getRow() + 1; j < multiComments.get(i + 1).getRow(); j++) {
                         tokenLists.remove(j);
                     }
-                    List<String> StartLine = tokenLists.get(multiComments.get(i).getRow()).getTokenList();//注释行起始
-                    List<String> EndLine = tokenLists.get(multiComments.get(i + 1).getRow()).getTokenList();//注释行结束
-                    for (int j = multiComments.get(i).getColumn(); j < StartLine.size(); )//因为随着元素的删除减少，size大小也会发生改变
+                    List<String> StartLine = tokenLists.get(multiComments.get(i).getRow()).getTokenList();//æ³¨é‡Šè¡Œèµ·å§‹
+                    List<String> EndLine = tokenLists.get(multiComments.get(i + 1).getRow()).getTokenList();//æ³¨é‡Šè¡Œç»“æ�Ÿ
+                    for (int j = multiComments.get(i).getColumn(); j < StartLine.size(); )//å› ä¸ºéš�ç�€å…ƒç´ çš„åˆ é™¤å‡�å°‘ï¼Œsizeå¤§å°�ä¹Ÿä¼šå�‘ç”Ÿæ”¹å�˜
                     {
                         StartLine.remove(j);
                     }
-                    int position = multiComments.get(i).getColumn();//位置指针
-                    for (int j = 0; j <= position; )//同理，元素的数量的减少导致size改变
+                    int position = multiComments.get(i).getColumn();//ä½�ç½®æŒ‡é’ˆ
+                    for (int j = 0; j <= position; )//å�Œç�†ï¼Œå…ƒç´ çš„æ•°é‡�çš„å‡�å°‘å¯¼è‡´sizeæ”¹å�˜
                     {
                         EndLine.remove(j);
                         position--;
                     }
                 }
             } else {
-                outText.append("无法继续分析");
-                outText.append("第" + multiComments.get(i).getRow() + "行第" + multiComments.get(i).getColumn() + "处的注释未闭合");
+                outText.append("æ— æ³•ç»§ç»­åˆ†æž�");
+                outText.append("ç¬¬" + multiComments.get(i).getRow() + "è¡Œç¬¬" + multiComments.get(i).getColumn() + "å¤„çš„æ³¨é‡Šæœªé—­å�ˆ");
                 break;
             }
         }
         for (int i = 0; i < singleComments.size(); i++) {
             List<String> SignleLine = tokenLists.get(singleComments.get(i).getRow()).getTokenList();
             for (int j = singleComments.get(i).getColumn(); j < SignleLine.size(); ) {
-                SignleLine.remove(j);//去除单行注释
+                SignleLine.remove(j);//åŽ»é™¤å�•è¡Œæ³¨é‡Š
             }
         }
         return tokenLists;
     }
 
-    //所有的记号处理都做好，此处纯分析记号
+    //æ‰€æœ‰çš„è®°å�·å¤„ç�†éƒ½å�šå¥½ï¼Œæ­¤å¤„çº¯åˆ†æž�è®°å�·
     public void Analysis() {
         List<TokenList> tokenLists = getTokens();
         for (int i = 0; i < tokenLists.size(); i++) {
             List<String> tokenList = tokenLists.get(i).getTokenList();
-            outText.append("--------------------------------------------------分析第" + (i + 1) + "行--------------------------------------------------" + "\r\n");
+            outText.append("--------------------------------------------------åˆ†æž�ç¬¬" + (i + 1) + "è¡Œ--------------------------------------------------" + "\r\n");
             for (int j = 0; j < tokenList.size(); j++) {
                 int Count = 0;
                 for (int k = 0; k < keyWords.length; k++) {
                     if (tokenList.get(j).equals(keyWords[k])) {
-                        outText.append(tokenList.get(j) + " 是关键字" + "\r\n");
+                        outText.append(tokenList.get(j) + " æ˜¯å…³é”®å­—" + "\r\n");
                         Count++;
                     }
                 }
                 for (int k = 0; k < operator.length; k++) {
                     if (tokenList.get(j).equals(operator[k])) {
-                        outText.append(tokenList.get(j) + " 是运算符" + "\r\n");
+                        outText.append(tokenList.get(j) + " æ˜¯è¿�ç®—ç¬¦" + "\r\n");
                         Count++;
                     }
                 }
                 for (int k = 0; k < roperator.length; k++) {
                     if (tokenList.get(j).equals(roperator[k])) {
-                        outText.append(tokenList.get(j) + " 是关系运算符" + "\r\n");
+                        outText.append(tokenList.get(j) + " æ˜¯å…³ç³»è¿�ç®—ç¬¦" + "\r\n");
                         Count++;
                     }
                 }
                 for (int k = 0; k < sepretor.length; k++) {
                     if (tokenList.get(j).equals(sepretor[k])) {
-                        outText.append(tokenList.get(j) + " 是分隔符" + "\r\n");
+                        outText.append(tokenList.get(j) + " æ˜¯åˆ†éš”ç¬¦" + "\r\n");
                         Count++;
                     }
                 }
                 if (tokenList.get(j).matches(RegexToId) && (Count == 0)) {
-                    outText.append(tokenList.get(j) + " 是标识符" + "\r\n");
+                    outText.append(tokenList.get(j) + " æ˜¯æ ‡è¯†ç¬¦" + "\r\n");
                 } else if (tokenList.get(j).matches(RegexToNumber)) {
-                    outText.append(tokenList.get(j) + " 是整数" + "\r\n");
+                    outText.append(tokenList.get(j) + " æ˜¯æ•´æ•°" + "\r\n");
                 } else if (tokenList.get(j).matches(RegexToFloat)) {
-                    outText.append(tokenList.get(j) + " 是浮点数" + "\r\n");
+                    outText.append(tokenList.get(j) + " æ˜¯æµ®ç‚¹æ•°" + "\r\n");
                 } else if (tokenList.get(j).matches(RegexToArray)) {
-                    outText.append(tokenList.get(j) + " 是数组变量" + "\r\n");
+                    outText.append(tokenList.get(j) + " æ˜¯æ•°ç»„å�˜é‡�" + "\r\n");
                 } else if (tokenList.get(j).equals("=")) {
-                    outText.append(tokenList.get(j) + " 是等于号" + "\r\n");
+                    outText.append(tokenList.get(j) + " æ˜¯ç­‰äºŽå�·" + "\r\n");
                 } else if (Count == 0) {
-                    outText.append(tokenList.get(j) + " 标识符命名错误" + "\r\n");
+                    outText.append(tokenList.get(j) + " æ ‡è¯†ç¬¦å‘½å��é”™è¯¯" + "\r\n");
                 }
             }
         }
