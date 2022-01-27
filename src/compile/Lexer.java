@@ -19,7 +19,7 @@ public class Lexer extends MainComplier{
     //Lexical analysis interpretation rules, defining character arrays
     String[] keyWords = {"if", "else", "while", "read", "write", "int", "double","for"};  //array of keywords
     String[] operator = {"+", "-", "*", "/"};//operator array
-    String[] roperator = {">", "<", "==", "<>"};//å…³ç³»è¿�ç®—ç¬¦æ•°ç»„
+    String[] roperator = {">", "<", "==", "<>"};//Array of relational operators
     String[] sepretor = {";", "{", "}", "(", ")", "."};//åˆ†éš”ç¬¦æ•°ç»„
     String RegexToId = "^[a-zA-Z]([a-zA-Z_0-9])*[a-zA-Z0-9]$||[a-zA-Z]";//æ ‡è¯†ç¬¦çš„æ­£åˆ™è¡¨è¾¾å¼�
     String RegexToNumber = "^^-?\\d+$";//æ•´æ•°çš„æ­£åˆ™è¡¨è¾¾å¼�
