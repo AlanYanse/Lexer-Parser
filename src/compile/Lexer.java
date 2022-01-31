@@ -20,28 +20,28 @@ public class Lexer extends MainComplier{
     String[] keyWords = {"if", "else", "while", "read", "write", "int", "double","for"};  //array of keywords
     String[] operator = {"+", "-", "*", "/"};//operator array
     String[] roperator = {">", "<", "==", "<>"};//Array of relational operators
-    String[] sepretor = {";", "{", "}", "(", ")", "."};//åˆ†éš”ç¬¦æ•°ç»„
-    String RegexToId = "^[a-zA-Z]([a-zA-Z_0-9])*[a-zA-Z0-9]$||[a-zA-Z]";//æ ‡è¯†ç¬¦çš„æ­£åˆ™è¡¨è¾¾å¼�
-    String RegexToNumber = "^^-?\\d+$";//æ•´æ•°çš„æ­£åˆ™è¡¨è¾¾å¼�
-    String RegexToFloat = "^(-?\\d+)(\\.\\d+)?$";//æµ®ç‚¹æ•°çš„æ­£åˆ™è¡¨è¾¾å¼�
-    String RegexToArray = "[a-zA-Z]+(\\[[0-9][1-9]*\\])+";//æ•°ç»„å�˜é‡�çš„æ­£åˆ™è¡¨è¾¾å¼�
+    String[] sepretor = {";", "{", "}", "(", ")", "."};//delimiter array
+    String RegexToId = "^[a-zA-Z]([a-zA-Z_0-9])*[a-zA-Z0-9]$||[a-zA-Z]";//Regular Expression for Identifiers
+    String RegexToNumber = "^^-?\\d+$";//Integer regular expression
+    String RegexToFloat = "^(-?\\d+)(\\.\\d+)?$";//Regular expression for floating point numbers
+    String RegexToArray = "[a-zA-Z]+(\\[[0-9][1-9]*\\])+";//Regular Expression for Array Variables
 
-    //å°†çˆ¶ç±»çš„readText, outTextç»§æ‰¿è¿‡æ�¥
+    //Inherit the readText and outText of the parent class
     public Lexer(ReadText readText, OutText outText) throws HeadlessException {
         super(readText, outText);
     }
 
-    //åˆ†æž�è¿‡ç¨‹ï¼Œæ­¤å¤„ä¸ºè¯­æ³•åˆ†æž�å’Œè¯�æ³•åˆ†æž�æ��ä¾›å·²ç»�ä¿®é¥°è¿‡çš„æº�ç¨‹åº�
+    //The analysis process, where the modified source program is provided for parsing and lexical analysis
     public List<TokenList> getTokens() {
-        List<TokenList> tokenLists = new ArrayList<>();//ç”¨äºŽè®°å½•Tokençš„ä¿¡æ�¯
+        List<TokenList> tokenLists = new ArrayList<>();//Information used to record Token
         String inputText = readText.getText();
         StringTokenizer totalStrt = new StringTokenizer(inputText, "\r\n");
-        int row = 0;//è¡Œå�·
-        //èŽ·å�–æ‰€æœ‰çš„è®°å�·ä»¥å�Šè®°å�·çš„ä¿¡æ�¯
+        int row = 0;//line number
+        //Get all tokens and token information
         while (totalStrt.hasMoreTokens()) {
-            List<String> Tokens = new ArrayList<>();//è¡Œè®°å�·
+            List<String> Tokens = new ArrayList<>();//line notation
             StringTokenizer rowOfStrt = new StringTokenizer(totalStrt.nextToken(), " \n\r\t;(){}\"\'+-<>/=*", true);
-            //æ‰€æœ‰å�¯èƒ½çš„ç•Œç¬¦ï¼Œåˆ�æ­¥å¾—åˆ°æ‰€æœ‰çš„Token,ä½†éœ€è¦�è¿›ä¸€æ­¥çš„å�ˆå¹¶
+            //All possible delimiters, all Tokens are initially obtained, but further merging is required
             while (rowOfStrt.hasMoreTokens()) {
                 Tokens.add(rowOfStrt.nextToken());
             }
@@ -49,20 +49,20 @@ public class Lexer extends MainComplier{
             tokenLists.add(tokenList);
             row++;
         }
-        //å¯¹äºŽåˆ�æ­¥å¾—åˆ°çš„è®°å�·é›†å�ˆçš„è¿›ä¸€æ­¥åˆ¤æ–­ä¸Žæ•´å�ˆ,ç”¨äºŽåŒºåˆ«æ³¨é‡Šå’Œ*,/ï¼›ä»¥å�Š=ä¸Ž==,ä»¥å�Š<ä¸Ž<>
+        //For further judgment and integration of the initially obtained token set, it is used to distinguish comments from *, /; and = and ==, and < and <>
         for (int i = 0; i < tokenLists.size(); i++) {
-            List<String> tokenList = tokenLists.get(i).getTokenList();//èŽ·å�–è¡Œè®°å�·ç»„
+            List<String> tokenList = tokenLists.get(i).getTokenList();//Get line token group
             for (int j = 0; j < tokenList.size() - 1; j++) {
                 if (tokenList.get(j).equals("/") && tokenList.get(j + 1).equals("/")) {
-                    //å�•è¡Œæ³¨é‡Šè®°å�·çš„è¯†åˆ«
+                    //Recognition of single-line keynotes
                     tokenList.set(j, "//");
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("/") && tokenList.get(j + 1).equals("*")) {
-                    //å¤šè¡Œæ³¨é‡Šçš„è¯†åˆ«
+                    //Recognition of multi-line comments
                     tokenList.set(j, "/*");
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("*") && tokenList.get(j + 1).equals("/")) {
-                    //å¤šè¡Œæ³¨é‡Šçš„è¯†åˆ«
+                    //Recognition of multi-line comments
                     tokenList.set(j, "*/");
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("=") && tokenList.get(j + 1).equals("=")) {
@@ -70,7 +70,7 @@ public class Lexer extends MainComplier{
                     tokenList.remove(j + 1);
                 } else if (tokenList.get(j).equals("<") && tokenList.get(j + 1).equals(">")) {
                     tokenList.set(j, "<>");
-                    tokenList.remove(j + 1);//åˆ¤æ–­ä¸�ç­‰äºŽç¬¦å�·
+                    tokenList.remove(j + 1);//Judgment is not equal to sign
                 }
             }
         }
