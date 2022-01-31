@@ -3,10 +3,15 @@ package window;
 import java.awt.*;
 
 /**
- * 输入区域，读取文本域的信息
+ * è¾“å…¥åŒºåŸŸï¼Œè¯»å�–æ–‡æœ¬åŸŸçš„ä¿¡æ�¯
  */
 public class ReadText extends TextArea{
-    public ReadText(int rows,int columns) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ReadText(int rows,int columns) {
         setBackground(Color.white);
         setForeground(Color.black);
         setRows(rows);

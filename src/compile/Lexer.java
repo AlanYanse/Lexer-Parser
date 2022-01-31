@@ -25,7 +25,8 @@ public class Lexer extends MainComplier{
     String RegexToNumber = "^^-?\\d+$";//Integer regular expression
     String RegexToFloat = "^(-?\\d+)(\\.\\d+)?$";//Regular expression for floating point numbers
     String RegexToArray = "[a-zA-Z]+(\\[[0-9][1-9]*\\])+";//Regular Expression for Array Variables
-
+    
+    //Constructor
     //Inherit the readText and outText of the parent class
     public Lexer(ReadText readText, OutText outText) throws HeadlessException {
         super(readText, outText);

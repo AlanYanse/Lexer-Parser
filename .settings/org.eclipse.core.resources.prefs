@@ -2,3 +2,7 @@ eclipse.preferences.version=1
 encoding//src/compile/Lexer.java=UTF-8
 encoding//src/compile/MainComplier.java=UTF-8
 encoding//src/compile/Parser.java=UTF-8
+encoding//src/frame/OutText.java=UTF-8
+encoding//src/frame/ReadText.java=UTF-8
+encoding//src/window/OutText.java=UTF-8
+encoding//src/window/ReadText.java=UTF-8
