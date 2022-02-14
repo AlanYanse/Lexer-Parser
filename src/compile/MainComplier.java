@@ -8,7 +8,7 @@ import java.awt.event.*;
 import java.io.*;
 
 /**
- * @description è¿™æ˜¯ä¸»è¿�è¡Œçª—å�£
+ * @description This is the main run window
  */
 @SuppressWarnings("all")
 public class MainComplier extends JFrame {
@@ -25,12 +25,12 @@ public class MainComplier extends JFrame {
     ReadText readText = new ReadText(7, 63);//input area
     OutText outText = new OutText(30, 65);//output area
 
-    //ä¾›å­�ç±»ç»§æ‰¿ä½¿ç”¨
+    //For subclass inheritance
     public MainComplier(ReadText readText, OutText outText) throws HeadlessException {
         this.readText = readText;
         this.outText = outText;
     }
-    //äº‹ä»¶ç›‘å�¬å™¨
+    //event listener
     public void initListener() {
         ActListener actListener = new ActListener();
         jButton1.addActionListener(actListener);
@@ -40,7 +40,7 @@ public class MainComplier extends JFrame {
         jButton5.addActionListener(actListener);
         jButton6.addActionListener(actListener);
     }
-    //æž„å»ºäº‹ä»¶ç›‘å�¬å™¨
+    //Build event listeners
     class ActListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -63,14 +63,14 @@ public class MainComplier extends JFrame {
             }
         }
     }
-    //ä¸»çª—å�£
+    //Main window
     public MainComplier() throws IOException {
         super("lexical analyzer");
         setSize(650, 720);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLayout(new FlowLayout(FlowLayout.CENTER));//ä¸­é—´å¯¹é½�
+        this.setLayout(new FlowLayout(FlowLayout.CENTER));//center alignment
         this.add(this.inLabel);
         this.add(this.readText);
         this.add(this.outLabel);
@@ -82,6 +82,6 @@ public class MainComplier extends JFrame {
         this.add(this.jButton6);
         this.add(this.jButton2);
         initListener();
-        this.setVisible(true);//è®¾ç½®çª—å�£å�¯è¾“å…¥æ–‡æœ¬
+        this.setVisible(true);//Settings window to enter text
     }
 }
