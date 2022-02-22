@@ -10,43 +10,43 @@ import java.security.PublicKey;
 import java.util.*;
 
 /**
- * @description è¿™æ˜¯è¯�æ³•åˆ†æž�çš„å…·ä½“å®žçŽ°
+ * @description This is the concrete implementation of lexical analysis
  */
 @SuppressWarnings("all")
 public class Parser extends MainComplier{
-    //è¯­æ³•åˆ†æž�çš„è§„åˆ™
-    public static final String PATH = "./grammar2";// æ–‡æ³•
-    private static String START; // å¼€å§‹ç¬¦å�·
-    private static HashSet<String> VN, VT; // é�žç»ˆç»“ç¬¦å�·é›†ã€�ç»ˆç»“ç¬¦å�·é›†
-    private static HashMap<String, ArrayList<ArrayList<String>>> MAP;// key:äº§ç”Ÿå¼�å·¦è¾¹ value:äº§ç”Ÿå¼�å�³è¾¹(å�«å¤šæ�¡)
-    private static HashMap<String, String> oneLeftFirst;// "|" åˆ†å¼€çš„å�•æ�¡äº§ç”Ÿå¼�å¯¹åº”çš„FIRSTé›†å�ˆ,ç”¨äºŽæž„å»ºé¢„æµ‹åˆ†æž�è¡¨
-    private static HashMap<String, HashSet<String>> FIRST, FOLLOW; // FIRSTã€�FOLLOWé›†å�ˆ
-    private static String[][] FORM; // å­˜æ”¾é¢„æµ‹åˆ†æž�è¡¨çš„æ•°ç»„ï¼Œç”¨äºŽè¾“å‡º
-    private static HashMap<String, String> preMap;// å­˜æ”¾é¢„æµ‹åˆ†æž�è¡¨çš„mapï¼Œç”¨äºŽå¿«é€ŸæŸ¥æ‰¾
+    //rules for parsing
+    public static final String PATH = "./grammar2";// grammar
+    private static String START; // start symbol
+    private static HashSet<String> VN, VT; // set of nonterminal symbols, set of terminal symbols
+    private static HashMap<String, ArrayList<ArrayList<String>>> MAP;// key:The left side of the production value: the right side of the production (including multiple)
+    private static HashMap<String, String> oneLeftFirst;// "|" The FIRST set corresponding to the separate single production is used to construct the prediction analysis table
+    private static HashMap<String, HashSet<String>> FIRST, FOLLOW; // FIRST, FOLLOW collection
+    private static String[][] FORM; // An array of predictive analysis tables for output
+    private static HashMap<String, String> preMap;// The map that stores the predictive analysis table for fast lookup
     private int choice;
 
-    //å°†çˆ¶ç±»çš„readText, outTextç»§æ‰¿è¿‡æ�¥
+    //Inherit the readText and outText of the parent class
     public Parser(ReadText readText, OutText outText, int choice) throws HeadlessException {
         super(readText, outText);
         this.choice=choice;
     }
 
-    //ç¨‹åº�å…¥å�£
+    //Program entry
     public void Main() {
-        init(); // åˆ�å§‹åŒ–å�˜é‡�
-        identifyVnVt(readFile(new File(PATH)));// ç¬¦å�·åˆ†ç±»,å¹¶ä»¥key-valueå½¢å¼�å­˜äºŽMAPä¸­
-        reformMap();// æ¶ˆé™¤å·¦é€’å½’å’Œæ��å�–å·¦å…¬å› å­�
-        findFirst(); // æ±‚FIRSTé›†å�ˆ
-        findFollow(); // æ±‚FOLLOWé›†å�ˆ
+        init(); // Initialize variables
+        identifyVnVt(readFile(new File(PATH)));//Symbol classification, and stored in MAP in the form of key-value
+        reformMap();// Eliminate left recursion and extract left common factor
+        findFirst(); // Find the FIRST set
+        findFollow(); // Find the FOLLOW set
         if (isLL1()) {
-            preForm(); // æž„å»ºé¢„æµ‹åˆ†æž�è¡¨
+            preForm(); // Build a predictive analytics table
             printAutoPre(readText.getText());
         }
     }
-    // ä»Žæ–‡ä»¶è¯»æ–‡æ³•
+    // Read grammar from file
     public ArrayList<String> readFile(File file) {
         BufferedReader br = null;
-        outText.append("ä»Žæ–‡ä»¶è¯»å…¥çš„æ–‡æ³•ä¸º:"+"\r\n");
+        outText.append("The grammar read from the file is: "+"\r\n"); // ...Continue from here...
         ArrayList<String> result = new ArrayList<>();
         try {
             if (choice == 1) {
