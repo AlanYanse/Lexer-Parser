@@ -69,7 +69,7 @@ public class Parser extends MainComplier{
         }
         return result;
     }
-    // å�˜é‡�åˆ�å§‹åŒ–
+    // variable initialization
     private static void init() {
         VN = new HashSet<>();
         VT = new HashSet<>();
@@ -79,30 +79,30 @@ public class Parser extends MainComplier{
         oneLeftFirst = new HashMap<>();
         preMap = new HashMap<>();
     }
-    // ç¬¦å�·åˆ†ç±»
+    // Symbol classification
     private void identifyVnVt(ArrayList<String> list) {
-        START = list.get(0).charAt(0) + "";// å­˜æ”¾å¼€å§‹ç¬¦å�·
+        START = list.get(0).charAt(0) + "";// save start symbol
 
         for (int i = 0; i < list.size(); i++) {
             String oneline = list.get(i);
-            String[] vnvt = oneline.split("â†’");// ç”¨å®šä¹‰ç¬¦å�·åˆ†å‰²
-            String left = vnvt[0].trim(); // æ–‡æ³•çš„å·¦è¾¹
+            String[] vnvt = oneline.split("â†’");// split by definition symbol
+            String left = vnvt[0].trim(); // left side of grammar
             VN.add(left);
 
-            // æ–‡æ³•å�³è¾¹
+            // grammar right
             ArrayList<ArrayList<String>> mapValue = new ArrayList<>();
             ArrayList<String> right = new ArrayList<>();
 
-            for (int j = 0; j < vnvt[1].length(); j++) { // ç”¨ â€œ|â€�åˆ†å‰²å�³è¾¹
+            for (int j = 0; j < vnvt[1].length(); j++) { // Use "|" to split the right
                 if (vnvt[1].charAt(j) == '|') {
                     VT.addAll(right);
                     mapValue.add(right);
-                    // right.clear();// æ¸…ç©ºä¹‹å�Žï¼Œä¾�ç„¶æ˜¯å�Œä¸€ä¸ªåœ°å�€ï¼Œéœ€è¦�é‡�æ–°newå¯¹è±¡
+                    // right.clear();// After clearing, it is still the same address, and you need to renew the object
                     right = null;
                     right = new ArrayList<>();
                     continue;
                 }
-                // å¦‚æžœäº§ç”Ÿå¼�æŸ�å­—ç¬¦çš„å·¦è¾¹å�«æœ‰ä¸­æ–‡æˆ–è‹±æ–‡çš„å�•å¼•å�·ï¼Œåˆ™è§†ä¸ºå�Œä¸€ä¸ªå­—ç¬¦
+                // If the left side of a character in the production contains a single quotation mark in Chinese or English, it is regarded as the same character
                 if (j + 1 < vnvt[1].length() && (vnvt[1].charAt(j + 1) == '\'' || vnvt[1].charAt(j + 1) == '’')) {
                     right.add(vnvt[1].charAt(j) + "" + vnvt[1].charAt(j + 1));
                     j++;
@@ -115,13 +115,13 @@ public class Parser extends MainComplier{
 
             MAP.put(left, mapValue);
         }
-        VT.removeAll(VN); // ä»Žç»ˆç»“å­—ç¬¦é›†ä¸­ç§»é™¤é�žç»ˆç»“ç¬¦
-        // æ‰“å�°Vnã€�Vt
+        VT.removeAll(VN); // Remove nonterminals from the terminal character set
+        // print Vn, Vt
         outText.append("\nVné›†å�ˆ:\r\n\t{" + String.join("ã€�", VN.toArray(new String[VN.size()])) + "}"+"\r\n");
         outText.append("Vté›†å�ˆ:\n\t{" + String.join("ã€�", VT.toArray(new String[VT.size()])) + "}"+"\r\n");
 
     }
-    // æ¶ˆé™¤ç›´æŽ¥å·¦é€’å½’
+    // Eliminate direct left recursion //TODO
     private void reformMap() {
         boolean isReForm = false;// MAPæ˜¯å�¦è¢«ä¿®æ”¹
         Set<String> keys = new HashSet<>();
