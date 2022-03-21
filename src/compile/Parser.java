@@ -46,7 +46,7 @@ public class Parser extends MainComplier{
     // Read grammar from file
     public ArrayList<String> readFile(File file) {
         BufferedReader br = null;
-        outText.append("The grammar read from the file is: "+"\r\n"); // ...Continue from here...
+        outText.append("The grammar read from the file is: "+"\r\n"); // 
         ArrayList<String> result = new ArrayList<>();
         try {
             if (choice == 1) {
@@ -123,7 +123,7 @@ public class Parser extends MainComplier{
     }
     // Eliminate direct left recursion //TODO
     private void reformMap() {
-        boolean isReForm = false;// MAPæ˜¯å�¦è¢«ä¿®æ”¹
+        boolean isReForm = false;// Whether the MAP has been modified
         Set<String> keys = new HashSet<>();
         keys.addAll(MAP.keySet());
         Iterator<String> it = keys.iterator();
@@ -131,14 +131,14 @@ public class Parser extends MainComplier{
         nullSign.add("Îµ");
         while (it.hasNext()) {
             String left = it.next();
-            boolean flag = false;// æ˜¯å�¦æœ‰å·¦é€’å½’
+            boolean flag = false;// Is there left recursion
             ArrayList<ArrayList<String>> rightList = MAP.get(left);
-            ArrayList<String> oldRightCell = new ArrayList<>(); // æ—§äº§ç”Ÿçš„å�³è¾¹
-            ArrayList<ArrayList<String>> newLeftNew = new ArrayList<>();// å­˜æ”¾æ–°çš„å·¦è¾¹å’Œæ–°çš„å�³è¾¹
+            ArrayList<String> oldRightCell = new ArrayList<>(); // old generated right
+            ArrayList<ArrayList<String>> newLeftNew = new ArrayList<>();// store new left and new right
 
-            // æ¶ˆé™¤ç›´æŽ¥å·¦é€’å½’
+            // Eliminate direct left recursion
             for (int i = 0; i < rightList.size(); i++) {
-                ArrayList<String> newRightCell = new ArrayList<>(); // æ–°äº§ç”Ÿå¼�çš„å�³è¾¹
+                ArrayList<String> newRightCell = new ArrayList<>(); // the right side of the new production
                 if (rightList.get(i).get(0).equals(left)) {
                     for (int j = 1; j < rightList.get(i).size(); j++) {
                         newRightCell.add(rightList.get(i).get(j));
@@ -153,14 +153,14 @@ public class Parser extends MainComplier{
                     oldRightCell.add(left + "\'");
                 }
             }
-            // å¦‚æžœæœ‰å·¦é€’å½’ï¼Œåˆ™æ›´æ–°MAP
+            // If there is left recursion, update MAP
             if (flag) {
                 isReForm = true;
                 newLeftNew.add(nullSign);
                 MAP.put(left + "\'", newLeftNew);
                 VN.add(left + "\'"); // åŠ å…¥æ–°çš„VN
                 VT.add("Îµ"); // åŠ å…¥Îµåˆ°VT
-                ArrayList<ArrayList<String>> newLeftOld = new ArrayList<>();// å­˜æ”¾åŽŸå…ˆï¼Œä½†æ˜¯äº§ç”Ÿæ–°çš„å�³è¾¹
+                ArrayList<ArrayList<String>> newLeftOld = new ArrayList<>();// save the original, but generate a new right (...Continue from here...)
                 newLeftOld.add(oldRightCell);
                 MAP.put(left, newLeftOld);
             }
