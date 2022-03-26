@@ -165,9 +165,9 @@ public class Parser extends MainComplier{
                 MAP.put(left, newLeftOld);
             }
         }
-        // å¦‚æžœæ–‡æ³•è¢«ä¿®æ”¹ï¼Œåˆ™è¾“å‡ºä¿®æ”¹å�Žçš„æ–‡æ³•
+        // If the grammar is modified, output the modified grammar
         if (isReForm) {
-            outText.append("æ¶ˆé™¤æ–‡æ³•çš„å·¦é€’å½’:"+"\r\n");
+            outText.append("Eliminate left recursion of grammar:"+"\r\n");
             Set<String> kSet = new HashSet<>(MAP.keySet());
             Iterator<String> itk = kSet.iterator();
             while (itk.hasNext()) {
@@ -184,19 +184,19 @@ public class Parser extends MainComplier{
             }
         }
     }
-    // æ±‚æ¯�ä¸ªé�žç»ˆç»“ç¬¦å�·çš„FIRSTé›†å�ˆ å’Œ åˆ†è§£å�•ä¸ªäº§ç”Ÿå¼�çš„FIRSTé›†å�ˆ
+    // find the FIRST set for each nonterminal and factorize the FIRST set of a single production
     private void findFirst() {
         outText.append("\nFIRSTé›†å�ˆ:"+"\r\n");
         Iterator<String> it = VN.iterator();
         while (it.hasNext()) {
-            HashSet<String> firstCell = new HashSet<>();// å­˜æ”¾å�•ä¸ªé�žç»ˆç»“ç¬¦å�·çš„FIRST
+            HashSet<String> firstCell = new HashSet<>();// FIRST holding a single nonterminal
             String key = it.next();
             ArrayList<ArrayList<String>> list = MAP.get(key);
             // System.out.println(key+":");
-            // é��åŽ†å�•ä¸ªäº§ç”Ÿå¼�çš„å·¦è¾¹
+            // traverse the left side of a single production
             for (int i = 0; i < list.size(); i++) {
-                ArrayList<String> listCell = list.get(i);// listCellä¸ºâ€œ|â€�åˆ†å‰²å‡ºæ�¥
-                HashSet<String> firstCellOne = new HashSet<>();// äº§ç”Ÿå¼�å·¦è¾¹ç”¨â€œ | â€�åˆ†å‰²çš„å�•ä¸ªå¼�å­�çš„First(å¼ƒç”¨)
+                ArrayList<String> listCell = list.get(i);// listCell is divided by "|"
+                HashSet<String> firstCellOne = new HashSet<>();// First of a single expression separated by " | " on the left side of the production (deprecated)
                 String oneLeft = String.join("", listCell.toArray(new String[listCell.size()]));
                 // System.out.println("oneLeft: "+oneLeft);
                 if (VT.contains(listCell.get(0))) {
@@ -204,7 +204,7 @@ public class Parser extends MainComplier{
                     firstCellOne.add(listCell.get(0));
                     oneLeftFirst.put(key + "$" + listCell.get(0), key + "â†’" + oneLeft);
                 } else {
-                    boolean[] isVn = new boolean[listCell.size()];// æ ‡è®°æ˜¯å�¦æœ‰å®šä¹‰ä¸ºç©º,å¦‚æžœæœ‰åˆ™æ£€æŸ¥ä¸‹ä¸€ä¸ªå­—ç¬¦
+                    boolean[] isVn = new boolean[listCell.size()];// Whether the token is defined as empty, if so check for the next character
                     isVn[0] = true;// ç¬¬ä¸€ä¸ªä¸ºé�žç»ˆç»“ç¬¦å�·
                     int p = 0;
                     while (isVn[p]) {
