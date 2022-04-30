@@ -205,7 +205,7 @@ public class Parser extends MainComplier{
                     oneLeftFirst.put(key + "$" + listCell.get(0), key + "â†’" + oneLeft);
                 } else {
                     boolean[] isVn = new boolean[listCell.size()];// Whether the token is defined as empty, if so check for the next character
-                    isVn[0] = true;// ç¬¬ä¸€ä¸ªä¸ºé�žç»ˆç»“ç¬¦å�·
+                    isVn[0] = true;// The first is a non terminal
                     int p = 0;
                     while (isVn[p]) {
                         // System.out.println(p+" "+listCell.size());
@@ -222,22 +222,22 @@ public class Parser extends MainComplier{
                             ArrayList<ArrayList<String>> listGo = MAP.get(stack.pop());
                             for (int k = 0; k < listGo.size(); k++) {
                                 ArrayList<String> listGoCell = listGo.get(k);
-                                if (VT.contains(listGoCell.get(0))) { // å¦‚æžœç¬¬ä¸€ä¸ªå­—ç¬¦æ˜¯ç»ˆç»“ç¬¦å�·
+                                if (VT.contains(listGoCell.get(0))) { // if the first character is a terminator
                                     if ("Îµ".equals(listGoCell.get(0))) {
-                                        if (!key.equals(START)) { // å¼€å§‹ç¬¦å�·ä¸�èƒ½æŽ¨å‡ºç©º
+                                        if (!key.equals(START)) { // start symbol cannot be pushed empty
                                             firstCell.add(listGoCell.get(0));
                                             firstCellOne.add(listGoCell.get(0));
                                             oneLeftFirst.put(key + "$" + listGoCell.get(0), key + "â†’" + oneLeft);
                                         }
-                                        if (p + 1 < isVn.length) {// å¦‚æžœä¸ºç©ºï¼Œå�¯ä»¥æŸ¥è¯¢ä¸‹ä¸€ä¸ªå­—ç¬¦
+                                        if (p + 1 < isVn.length) {// If empty, you can query the next character
                                             isVn[p + 1] = true;
                                         }
-                                    } else { // é�žç©ºçš„ç»ˆç»“ç¬¦å�·åŠ å…¥å¯¹åº”çš„FIRSTé›†å�ˆ
+                                    } else { // Non-empty terminal symbols are added to the corresponding FIRST set
                                         firstCell.add(listGoCell.get(0));
                                         firstCellOne.add(listGoCell.get(0));
                                         oneLeftFirst.put(key + "$" + listGoCell.get(0), key + "â†’" + oneLeft);
                                     }
-                                } else {// ä¸�æ˜¯ç»ˆç»“ç¬¦å�·ï¼Œå…¥æ ˆ
+                                } else {// Not a terminal symbol, push the stack
                                     stack.push(listGoCell.get(0));
                                 }
                             }
@@ -251,22 +251,22 @@ public class Parser extends MainComplier{
                 FIRST.put(key + "â†’" + oneLeft, firstCellOne);
             }
             FIRST.put(key, firstCell);
-            // è¾“å‡ºkeyçš„FIRSTé›†å�ˆ
+            // FIRST set of output keys
             outText.append(
                     "\tFIRST(" + key + ")={" + String.join("ã€�", firstCell.toArray(new String[firstCell.size()])) + "}"+"\r\n");
         }
     }
-    // æ±‚æ¯�ä¸ªé�žç»ˆç»“ç¬¦å�·çš„FLLOWé›†å�ˆ
+    // Find the FLLOW set of each nonterminal
     private void findFollow() {
         outText.append("\nFOLLOWé›†å�ˆ:"+"\r\n");
         Iterator<String> it = VN.iterator();
         HashMap<String, HashSet<String>> keyFollow = new HashMap<>();
 
-        ArrayList<HashMap<String, String>> vn_VnList = new ArrayList<>();// ç”¨äºŽå­˜æ”¾/A->...B æˆ–è€… A->...BÎµçš„ç»„å�ˆ
+        ArrayList<HashMap<String, String>> vn_VnList = new ArrayList<>();// Used to store combinations of /A->...B or A->...Bε
 
-        HashSet<String> vn_VnListLeft = new HashSet<>();// å­˜æ”¾vn_VnListçš„å·¦è¾¹å’Œå�³è¾¹
+        HashSet<String> vn_VnListLeft = new HashSet<>();// Store the left and right sides of vn_VnList
         HashSet<String> vn_VnListRight = new HashSet<>();
-        // å¼€å§‹ç¬¦å�·åŠ å…¥#
+        // start symbol join #
         keyFollow.put(START, new HashSet<String>() {
             private static final long serialVersionUID = 1L;
             {
@@ -279,7 +279,7 @@ public class Parser extends MainComplier{
             ArrayList<ArrayList<String>> list = MAP.get(key);
             ArrayList<String> listCell;
 
-            // å…ˆæŠŠæ¯�ä¸ªVNä½œä¸ºkeyFollowçš„keyï¼Œä¹‹å�Žåœ¨æŸ¥æ‰¾æ·»åŠ å…¶FOLLOWå…ƒç´ 
+            // First use each VN as the key of keyFollow, and then add its FOLLOW element in the search
             if (!keyFollow.containsKey(key)) {
                 keyFollow.put(key, new HashSet<>());
             }
@@ -288,7 +288,7 @@ public class Parser extends MainComplier{
             for (int i = 0; i < list.size(); i++) {
                 listCell = list.get(i);
 
-                // (1)ç›´æŽ¥æ‰¾é�žæ€»ç»“ç¬¦å�·å�Žé�¢è·Ÿç�€ç»ˆç»“ç¬¦å�·
+                // (1) Directly find the non-summary symbol followed by the terminal symbol
                 for (int j = 1; j < listCell.size(); j++) {
                     HashSet<String> set = new HashSet<>();
                     if (VT.contains(listCell.get(j))) {
@@ -300,7 +300,7 @@ public class Parser extends MainComplier{
                         keyFollow.put(listCell.get(j - 1), set);
                     }
                 }
-                // (2)æ‰¾...VnVn...ç»„å�ˆ
+                // (2) Find...VnVn...Combination
                 for (int j = 0; j < listCell.size() - 1; j++) {
                     HashSet<String> set = new HashSet<>();
                     if (VN.contains(listCell.get(j)) && VN.contains(listCell.get(j + 1))) {
