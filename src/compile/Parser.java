@@ -314,15 +314,15 @@ public class Parser extends MainComplier{
                     }
                 }
 
-                // (3)A->...B æˆ–è€… A->...BÎµ(å�¯ä»¥æœ‰nä¸ªÎµ)çš„ç»„å�ˆå­˜èµ·æ�¥
+                // (3) A->...B or A->...Bε (there can be n ε) combinations are stored
                 for (int j = 0; j < listCell.size(); j++) {
                     HashMap<String, String> vn_Vn;
-                    if (VN.contains(listCell.get(j)) && !listCell.get(j).equals(key)) {// æ˜¯VNä¸”Aä¸�ç­‰äºŽB
-                        boolean isAllNull = false;// æ ‡è®°VNå�Žæ˜¯å�¦ä¸ºç©º
-                        if (j + 1 < listCell.size()) {// å�³A->...BÎµ(å�¯ä»¥æœ‰nä¸ªÎµ)
+                    if (VN.contains(listCell.get(j)) && !listCell.get(j).equals(key)) {// is VN and A is not equal to B
+                        boolean isAllNull = false;// Is it empty after marking the VN
+                        if (j + 1 < listCell.size()) {// That is, A->...B Ε (there can be n ε)
                             for (int k = j + 1; k < listCell.size(); k++) {
                                 if ((FIRST.containsKey(listCell.get(k)) ? FIRST.get(listCell.get(k)).contains("Îµ")
-                                        : false)) {// å¦‚æžœå…¶å�Žé�¢çš„éƒ½æ˜¯VNä¸”å…¶FIRSTä¸­åŒ…å�«Îµ
+                                        : false)) {// If it is followed by VN and its FIRST contains ε
                                     isAllNull = true;
                                 } else {
                                     isAllNull = false;
@@ -330,7 +330,7 @@ public class Parser extends MainComplier{
                                 }
                             }
                         }
-                        // å¦‚æžœæ˜¯æœ€å�Žä¸€ä¸ªä¸ºVN,å�³A->...B
+                        // If the last one is VN, ie A->...B
                         if (j == listCell.size() - 1) {
                             isAllNull = true;
                         }
@@ -338,7 +338,7 @@ public class Parser extends MainComplier{
                             vn_VnListLeft.add(key);
                             vn_VnListRight.add(listCell.get(j));
 
-                            // å¾€vn_VnListä¸­æ·»åŠ ï¼Œåˆ†å­˜åœ¨å’Œä¸�å­˜åœ¨ä¸¤ç§�æƒ…å†µ
+                            // Add to vn_VnList, there are two cases: existence and non-existence
                             boolean isHaveAdd = false;
                             for (int x = 0; x < vn_VnList.size(); x++) {
                                 HashMap<String, String> vn_VnListCell = vn_VnList.get(x);
@@ -348,7 +348,7 @@ public class Parser extends MainComplier{
                                     isHaveAdd = true;
                                     break;
                                 } else {
-                                    // åŽ»é‡�
+                                    // deduplication
                                     if (vn_VnListCell.get(key).equals(listCell.get(j))) {
                                         isHaveAdd = true;
                                         break;
@@ -356,7 +356,7 @@ public class Parser extends MainComplier{
                                     continue;
                                 }
                             }
-                            if (!isHaveAdd) {// å¦‚æžœæ²¡æœ‰æ·»åŠ ï¼Œè¡¨ç¤ºæ˜¯æ–°çš„ç»„å�ˆ
+                            if (!isHaveAdd) {// If it is not added, it means it is a new combination
                                 vn_Vn = new HashMap<>();
                                 vn_Vn.put(key, listCell.get(j));
                                 vn_VnList.add(vn_Vn);
@@ -369,9 +369,9 @@ public class Parser extends MainComplier{
 
         keyFollow.toString();
 
-        // (4)vn_VnListLeftå‡�åŽ»vn_VnListRight,å‰©ä¸‹çš„å°±æ˜¯å…¥å�£äº§ç”Ÿå¼�ï¼Œ
+        // (4) vn_VnListLeft minus vn_VnListRight, the rest is the entry production,
         vn_VnListLeft.removeAll(vn_VnListRight);
-        Queue<String> keyQueue = new LinkedList<>();// ç”¨æ ˆæˆ–è€…é˜Ÿåˆ—éƒ½è¡Œ
+        Queue<String> keyQueue = new LinkedList<>();// Either stack or queue can be used
         Iterator<String> itVnVn = vn_VnListLeft.iterator();
         while (itVnVn.hasNext()) {
             keyQueue.add(itVnVn.next());
@@ -382,7 +382,7 @@ public class Parser extends MainComplier{
                 HashMap<String, String> vn_VnListCell = vn_VnList.get(t);
                 if (vn_VnListCell.containsKey(keyLeft)) {
                     HashSet<String> set = new HashSet<>();
-                    // åŽŸæ�¥çš„FOLLOWåŠ ä¸Šå·¦è¾¹çš„FOLLOW
+                    // The original FOLLOW plus the left FOLLOW
                     if (keyFollow.containsKey(keyLeft)) {
                         set.addAll(keyFollow.get(keyLeft));
                     }
@@ -392,16 +392,16 @@ public class Parser extends MainComplier{
                     keyFollow.put(vn_VnListCell.get(keyLeft), set);
                     keyQueue.add(vn_VnListCell.get(keyLeft));
 
-                    // ç§»é™¤å·²å¤„ç�†çš„ç»„å�ˆ
+                    // Remove processed combinations
                     vn_VnListCell.remove(keyLeft);
                     vn_VnList.set(t, vn_VnListCell);
                 }
             }
         }
 
-        // æ­¤æ—¶keyFollowä¸ºå®Œæ•´çš„FOLLOWé›†
+        // At this point keyFollow is the complete FOLLOW set
         FOLLOW = keyFollow;
-        // æ‰“å�°FOLLOWé›†å�ˆ
+        // print the FOLLOW collection
         Iterator<String> itF = keyFollow.keySet().iterator();
         while (itF.hasNext()) {
             String key = itF.next();
@@ -409,40 +409,40 @@ public class Parser extends MainComplier{
             outText.append("\tFOLLOW(" + key + ")={" + String.join("ã€�", f.toArray(new String[f.size()])) + "}"+"\r\n");
         }
     }
-    // åˆ¤æ–­æ˜¯å�¦æ˜¯LL(1)æ–‡æ³•
+    // Determine whether it is an LL(1) grammar
     private boolean isLL1() {
         outText.append("\næ­£åœ¨åˆ¤æ–­æ˜¯å�¦æ˜¯LL(1)æ–‡æ³•...."+"\r\n");
         boolean flag = true;// æ ‡è®°æ˜¯å�¦æ˜¯LL(1)æ–‡æ³•
         Iterator<String> it = VN.iterator();
         while (it.hasNext()) {
             String key = it.next();
-            ArrayList<ArrayList<String>> list = MAP.get(key);// å�•æ�¡äº§ç”Ÿå¼�
-            if (list.size() > 1) { // å¦‚æžœå�•æ�¡äº§ç”Ÿå¼�çš„å·¦è¾¹åŒ…å�«ä¸¤ä¸ªå¼�å­�ä»¥ä¸Šï¼Œåˆ™è¿›è¡Œåˆ¤æ–­
+            ArrayList<ArrayList<String>> list = MAP.get(key);// single production
+            if (list.size() > 1) { // If the left side of a single production contains more than two expressions, make a judgment
                 for (int i = 0; i < list.size(); i++) {
                     String aLeft = String.join("", list.get(i).toArray(new String[list.get(i).size()]));
                     for (int j = i + 1; j < list.size(); j++) {
                         String bLeft = String.join("", list.get(j).toArray(new String[list.get(j).size()]));
-                        if ("Îµ".equals(aLeft) || "Îµ".equals(bLeft)) { // (1)è‹¥bï¼�Îµ,åˆ™è¦�FIRST(A)âˆ©FOLLOW(A)=Ï†
+                        if ("Îµ".equals(aLeft) || "Îµ".equals(bLeft)) { // (1) If b=ε, then FIRST(A)∩FOLLOW(A)=φ
                             HashSet<String> retainSet = new HashSet<>();
-                            // retainSet=FIRST.get(key);//éœ€è¦�è¦�æ·±æ‹·è´�ï¼Œå�¦åˆ™ä¿®æ”¹retainSetæ—¶FIRSTå�Œæ ·ä¼šè¢«ä¿®æ”¹
+                            // retainSet=FIRST.get(key);//A deep copy is required, otherwise the FIRST will also be modified when the retainSet is modified
                             retainSet.addAll(FIRST.get(key));
                             if (FOLLOW.get(key) != null) {
                                 retainSet.retainAll(FOLLOW.get(key));
                             }
                             if (!retainSet.isEmpty()) {
-                                flag = false;// ä¸�æ˜¯LL(1)æ–‡æ³•ï¼Œè¾“å‡ºFIRST(a)FOLLOW(a)çš„äº¤é›†
+                                flag = false;// Not LL(1) grammar, output the intersection of FIRST(a)FOLLOW(a)
                                 outText.append("\tFIRST(" + key + ") âˆ© FOLLOW(" + key + ") = {"
                                         + String.join("ã€�", retainSet.toArray(new String[retainSet.size()])) + "}\r\n");
                                 break;
                             } else {
                                 outText.append("\tFIRST(" + key + ") âˆ© FOLLOW(" + key + ") = Ï†"+"\r\n");
                             }
-                        } else { // (2)b!ï¼�Îµè‹¥,åˆ™è¦�FIRST(a)âˆ©FIRST(b)= Ð¤
+                        } else { // (2) If b!=ε, then FIRST(a)∩FIRST(b)=Ф
                             HashSet<String> retainSet = new HashSet<>();
                             retainSet.addAll(FIRST.get(key + "â†’" + aLeft));
                             retainSet.retainAll(FIRST.get(key + "â†’" + bLeft));
                             if (!retainSet.isEmpty()) {
-                                flag = false;// ä¸�æ˜¯LL(1)æ–‡æ³•ï¼Œè¾“å‡ºFIRST(a)FIRST(b)çš„äº¤é›†
+                                flag = false;// Not LL(1) grammar, output the intersection of FIRST(a)FIRST(b)
                                 outText.append("\tFIRST(" + aLeft + ") âˆ© FIRST(" + bLeft + ") = {"
                                         + String.join("ã€�", retainSet.toArray(new String[retainSet.size()])) + "}"+"\r\n");
                                 break;
@@ -461,7 +461,7 @@ public class Parser extends MainComplier{
         }
         return flag;
     }
-    // æž„å»ºé¢„æµ‹åˆ†æž�è¡¨FORM
+    // Build a predictive analysis table FORM
     private void preForm() {
         HashSet<String> set = new HashSet<>();
         set.addAll(VT);
@@ -470,30 +470,30 @@ public class Parser extends MainComplier{
         Iterator<String> itVn = VN.iterator();
         Iterator<String> itVt = set.iterator();
 
-        // (1)åˆ�å§‹åŒ–FORM,å¹¶æ ¹æ�®oneLeftFirst(VN$VT,äº§ç”Ÿå¼�)å¡«è¡¨
+        // (1) Initialize FORM, and fill in the form according to oneLeftFirst(VN$VT, production)
         for (int i = 0; i < FORM.length; i++){
             for (int j = 0; j < FORM[0].length; j++) {
                 if (i == 0 && j > 0) {// ç¬¬ä¸€è¡Œä¸ºVt
                     if (itVt.hasNext()) {
                         FORM[i][j] = itVt.next();
                     }
-                    if (j == FORM[0].length - 1) {// æœ€å�Žä¸€åˆ—åŠ å…¥#
+                    if (j == FORM[0].length - 1) {// The last column is added#
                         FORM[i][j] = "#";
                     }
                 }
-                if (j == 0 && i > 0) {// ç¬¬ä¸€åˆ—ä¸ºVn
+                if (j == 0 && i > 0) {// The first column is Vn
                     if (itVn.hasNext()) {
                         FORM[i][j] = itVn.next();
                     }
                 }
-                if (i > 0 && j > 0) {// å…¶ä»–æƒ…å†µå…ˆæ ¹æ�®oneLeftFirstå¡«è¡¨
-                    String oneLeftKey = FORM[i][0] + "$" + FORM[0][j];// ä½œä¸ºkeyæŸ¥æ‰¾å…¶Firsté›†å�ˆ
+                if (i > 0 && j > 0) {// In other cases, fill in the form according to oneLeftFirst
+                    String oneLeftKey = FORM[i][0] + "$" + FORM[0][j];// Find its First collection as key
                     FORM[i][j] = oneLeftFirst.get(oneLeftKey);
                 }
             }
         }
 
-        // (2)å¦‚æžœæœ‰æŽ¨å‡ºäº†Îµï¼Œåˆ™æ ¹æ�®FOLLOWå¡«è¡¨
+        // (2) If ε is introduced, fill in the form according to FOLLOW
         for (int i = 1; i < FORM.length; i++) {
             String oneLeftKey = FORM[i][0] + "$Îµ";
             if (oneLeftFirst.containsKey(oneLeftKey)) {
@@ -512,7 +512,7 @@ public class Parser extends MainComplier{
             }
         }
 
-        // (3)æ‰“å�°é¢„æµ‹è¡¨,å¹¶å­˜äºŽMapçš„æ•°æ�®ç»“æž„ä¸­ç”¨äºŽå¿«é€ŸæŸ¥æ‰¾
+        // (3) Print the prediction table and store it in the Map data structure for quick search
         outText.append("\nè¯¥æ–‡æ³•çš„é¢„æµ‹åˆ†æž�è¡¨ä¸ºï¼š"+"\r\n");
         for (int i = 0; i < FORM.length; i++) {
             for (int j = 0; j < FORM[0].length; j++) {
@@ -531,10 +531,10 @@ public class Parser extends MainComplier{
         }
         outText.append("\r\n");
     }
-    // è¾“å…¥çš„å�•è¯�ä¸²åˆ†æž�æŽ¨å¯¼è¿‡ç¨‹
+    // Input word string analysis and derivation process
     public void printAutoPre(String str) {
         outText.append(str + "çš„åˆ†æž�è¿‡ç¨‹:"+"\r\n");
-        Queue<String> queue = new LinkedList<>();// å�¥å­�æ‹†åˆ†å­˜äºŽé˜Ÿåˆ—
+        Queue<String> queue = new LinkedList<>();// Sentence splits are stored in the queue
         for (int i = 0; i < str.length(); i++) {
             String t = str.charAt(i) + "";
             if (i + 1 < str.length() && (str.charAt(i + 1) == '\'' || str.charAt(i + 1) == '’')) {
@@ -543,23 +543,23 @@ public class Parser extends MainComplier{
             }
             queue.offer(t);
         }
-        queue.offer("#");// "#"ç»“æ�Ÿ
+        queue.offer("#");// "#"Finish
         // åˆ†æž�æ ˆ
         Stack<String> stack = new Stack<>();
-        stack.push("#");// "#"å¼€å§‹
-        stack.push(START);// åˆ�æ€�ä¸ºå¼€å§‹ç¬¦å�·
+        stack.push("#");// "#"start
+        stack.push(START);// The initial state is the start symbol
         boolean isSuccess = false;
         int step = 1;
         while (!stack.isEmpty()) {
             String left = stack.peek();
             String right = queue.peek();
-            // (1)åˆ†æž�æˆ�åŠŸ
+            // (1) Analysis is successful
             if (left.equals(right) && "#".equals(right)) {
                 isSuccess = true;
                 outText.append((step++) + "\t#\t#\t" + "åˆ†æž�æˆ�åŠŸ"+"\r\n");
                 break;
             }
-            // (2)åŒ¹é…�æ ˆé¡¶å’Œå½“å‰�ç¬¦å�·ï¼Œå�‡ä¸ºç»ˆç»“ç¬¦å�·ï¼Œæ¶ˆåŽ»
+            // (2) Match the top of the stack and the current symbol, both of which are terminal symbols, eliminate
             if (left.equals(right)) {
                 String stackStr = String.join("", stack.toArray(new String[stack.size()]));
                 String queueStr = String.join("", queue.toArray(new String[queue.size()]));
@@ -568,7 +568,7 @@ public class Parser extends MainComplier{
                 queue.poll();
                 continue;
             }
-            // (3)ä»Žé¢„æµ‹è¡¨ä¸­æŸ¥è¯¢
+            // (3) Query from the prediction table
             if (preMap.containsKey(left + right)) {
                 String stackStr = String.join("", stack.toArray(new String[stack.size()]));
                 String queueStr = String.join("", queue.toArray(new String[queue.size()]));
@@ -576,7 +576,7 @@ public class Parser extends MainComplier{
                         + preMap.get(left + right) + "," + right + "é€†åº�è¿›æ ˆ" + "\r\n");
                 stack.pop();
                 String tmp = preMap.get(left + right);
-                for (int i = tmp.length() - 1; i >= 0; i--) {// é€†åº�è¿›æ ˆ
+                for (int i = tmp.length() - 1; i >= 0; i--) {// push the stack in reverse order
                     String t = "";
                     if (tmp.charAt(i) == '\'' || tmp.charAt(i) == '’') {
                         t = tmp.charAt(i-1)+""+tmp.charAt(i);
@@ -590,7 +590,7 @@ public class Parser extends MainComplier{
                 }
                 continue;
             }
-            break;// (4)å…¶ä»–æƒ…å†µå¤±è´¥å¹¶é€€å‡º
+            break;// (4) other cases fail and exit
         }
         if (!isSuccess) {
             outText.append((step++) + "\t#\t#\t" + "åˆ†æž�å¤±è´¥"+"\r\n");
